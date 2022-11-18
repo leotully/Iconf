@@ -269,13 +269,10 @@ char *iconf_get_key(struct Iconf iconf, char *section, char *keyname)
 		
 		if (pos > -1 && strnicmp_p(s, keyname, strlen(keyname)) == 0)
 		{
-			strcpy(keyValue, s + pos + 1);
-			
-			/* trim before return to allow for key value alignment if user wants
-			 * to make the file more readable
-			 */
 			if (keyonly || in_section)
 			{
+				strcpy(keyValue, s + pos + 1);
+			
 				free(s);
 				return trimws(keyValue, ALL);
 			}
@@ -334,27 +331,30 @@ int iconf_set_key(struct Iconf iconf, char *section, char *keyname, char *newval
 		
 		if (pos > -1 && strnicmp_p(s, keyname, strlen(keyname)) == 0)
 		{
-			int orig_pos = strpos(iconf.strings[i], "=", 0);
-
-			strncpy(keyBuilder, iconf.strings[i], orig_pos + 1);
-			
-			orig_pos = strlen(keyBuilder);
-			
-			while (isspace(iconf.strings[i][orig_pos]))
+			if (keyonly || in_section)
 			{
-				keyBuilder[orig_pos] = iconf.strings[i][orig_pos];
-				orig_pos++;
+				int orig_pos = strpos(iconf.strings[i], "=", 0);
+
+				strncpy(keyBuilder, iconf.strings[i], orig_pos + 1);
+
+				orig_pos = strlen(keyBuilder);
+
+				while (isspace(iconf.strings[i][orig_pos]))
+				{
+					keyBuilder[orig_pos] = iconf.strings[i][orig_pos];
+					orig_pos++;
+				}
+
+				strcat(keyBuilder, newvalue);
+
+
+				keyValue = (char*)realloc(iconf.strings[i], strlen(keyBuilder) + 1);
+				strcpy(keyValue, keyBuilder);
+				iconf.strings[i] = keyValue;
+
+				free(s);
+				return 0;
 			}
-			
-			strcat(keyBuilder, newvalue);
-
-			keyValue = (char*)realloc(iconf.strings[i], strlen(keyBuilder) + 1);
-			strcpy(keyValue, keyBuilder);
-			iconf.strings[i] = keyValue;
-
-			free(s);
-
-			return 0;
 		}
 	}
 

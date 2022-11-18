@@ -24,7 +24,10 @@ int main(void)
 		return 1;
 		
 	if (dump_file("sample.ini", DF_TITLE | DF_FOOTER) != 0)
+	{
+		printf("problem dumping file\n");
 		return 1;
+	}
 	
 	/* get key value within section */
 	printf("%s\n", iconf_get_key(sample, "section1", "first"));

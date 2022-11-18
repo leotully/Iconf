@@ -1,5 +1,6 @@
 fix
 --------------------------------------------------------------------------------
+- set_key keyname in section is ignored if keyname found outside of section
 - error checking
 
 possible additions
