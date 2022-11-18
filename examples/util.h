@@ -77,7 +77,7 @@ void write_sample(char *filename)
 first=first not within section\n\
 \n\
 [section1]\n\
-first = first in section1\n\
+first=first in section1\n\
 \n\
    [  white space  ]\n\
    one   = 1\n\
