@@ -114,9 +114,9 @@ struct Iconf iconf_load(const char *filename)
 {
 	struct Iconf ini;
 	FILE *fp;
-	int arsize = 100;
 	char *s;
 	char buffer[BUF_LEN];
+	char **newptr;
 	int count = 0;
 	
 	ini.errval = 0;
@@ -130,7 +130,7 @@ struct Iconf iconf_load(const char *filename)
 		return ini;
 	}	
 	
-	ini.strings = (char**)malloc(arsize * sizeof(char*));
+	ini.strings = (char**)malloc(1 * sizeof(char*));
 
 	if (ini.strings == NULL)
 	{
@@ -141,14 +141,11 @@ struct Iconf iconf_load(const char *filename)
 
 	while (fgets(buffer, BUF_LEN, fp) != NULL)
 	{
-		if (count == arsize)
+		
+		if (count > 0)
 		{
-			char **newptr;
+			newptr = (char**)realloc(ini.strings, (count + 1) * sizeof(char*));
 
-			arsize += 100;
-
-			newptr = (char**)realloc(ini.strings, arsize * sizeof(char*));
-			
 			if (newptr == NULL)
 			{
 				fclose(fp);
@@ -156,9 +153,11 @@ struct Iconf iconf_load(const char *filename)
 				ini.errval = 2;
 				return ini;		
 			}
-
+			
 			ini.strings = newptr;
 		}
+
+
 
 		if (strchr(buffer, '\n') == NULL)
 		{
