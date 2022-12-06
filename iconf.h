@@ -46,3 +46,4 @@ int iconf_write(struct Iconf iconf, char *filename);
 void iconf_free(struct Iconf ini);
 
 #endif /* _ICONF_H */
+

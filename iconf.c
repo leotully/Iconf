@@ -111,7 +111,6 @@ struct Iconf iconf_load(const char *filename)
 		ini.errval = 1;
 		return ini;
 	}	
-	
 
 	while (fgets(buffer, BUF_LEN, fp) != NULL)
 	{
@@ -144,8 +143,6 @@ struct Iconf iconf_load(const char *filename)
 			ini.strings = newptr;
 		}
 
-
-
 		if (strchr(buffer, '\n') == NULL)
 		{
 			char discard;
@@ -173,7 +170,7 @@ struct Iconf iconf_load(const char *filename)
 	}
 
 	fclose(fp);
-
+	
 	ini.count = count;
 	
 	return ini;
@@ -217,14 +214,6 @@ char *iconf_get_key(struct Iconf iconf, char *section, char *keyname)
 	if (section == NULL)
 		keyonly = 1;
 	 
-	/*
-	if ((s = (char*)malloc(1)) == NULL)
-	{
-		iconf.errval = 2;
-		return NULL;
-	}
-	*/
-	
 	for (i = 0; i < iconf.count; i++)
 	{
 		if (i == 0)
@@ -284,6 +273,7 @@ char *iconf_get_key(struct Iconf iconf, char *section, char *keyname)
 	free(s);
 	
 	iconf.errval = 1;
+	
 	return NULL; /* key not found */
 }
 
@@ -363,6 +353,7 @@ int iconf_set_key(struct Iconf iconf, char *section, char *keyname, char *newval
 	}
 
 	free(s);
+	
 	return 1; /* key not found */
 }
 
@@ -388,3 +379,4 @@ int iconf_write(struct Iconf iconf, char *filename)
 
 	return 0;
 }
+
