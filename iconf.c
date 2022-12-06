@@ -145,7 +145,7 @@ struct Iconf iconf_load(const char *filename)
 
 		if (strchr(buffer, '\n') == NULL)
 		{
-			char discard;
+			int discard;
 			
 			while ((discard = fgetc(fp)) != '\n' && discard != EOF);
 		}
