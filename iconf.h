@@ -1,30 +1,13 @@
-/*------------------------------------------------------------------------------
-MIT License
+/*-----------------------------------------------------------------------------
+Copyright (c) 2022 Leo Tully - All Rights Reserved
 
-Copyright (c) 2022 Leo Tully
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-------------------------------------------------------------------------------*/
+You may use, copy, modify, merge, publish, etc. this software under the terms
+of the MIT License.
+-----------------------------------------------------------------------------*/
 #ifndef _ICONF_H
 #define _ICONF_H
 
-#define BUF_LEN 4096
+#define BUF_LEN 1025
 
 struct Iconf {
 	char **strings;
@@ -32,17 +15,34 @@ struct Iconf {
 	int errval;
 };
 
-
-void iconf_free(struct Iconf ini);
+/* loads configuration file strings.
+ * sets string count, including all comments and blank lines.
+ * sets error reporting variable 'Iconf.errval'.
+ * 
+ * Iconf.errval: ok = 0, can't open file = 1;
+ */
 struct Iconf iconf_load(const char *filename);
+
+/* iconf_get_key
+ * if section is set to NULL iconf_get_key will return the first matching key.
+ * 
+ * return value: key value string. if return is NULL check the Iconf.errval.
+ * Iconf.errval: ok = 0, key_not_found = 1, allocation problem 2
+ */
 char *iconf_get_key(struct Iconf iconf, char *section, char *keyname);
 
-/* key must exist. if section == NULL it updates the first matching key */
-/* return value: ok - 0, key not found = 1, allocation problem 2 */
+int iconf_get_int(struct Iconf iconf, char *section, char *keyname);
+long iconf_get_long(struct Iconf iconf, char *section, char *keyname);
+
+/* iconf_set_key
+ * key must exist. if section is set to NULL iconf_set_key will update the
+ * first matching key.
+ *
+ * return value: ok - 0, key not found = 1, allocation problem = 2
+ */
 int iconf_set_key(struct Iconf iconf, char *section, char *keyname, char *newvalue);
 
-/* if section == NULL key goes at top of list */
-/* int iconf_new_key(struct Iconf iconf, char *section, char *keyname); */
 int iconf_write(struct Iconf iconf, char *filename);
+void iconf_free(struct Iconf ini);
 
 #endif /* _ICONF_H */

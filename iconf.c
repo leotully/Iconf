@@ -1,26 +1,9 @@
-/*------------------------------------------------------------------------------
-MIT License
+/*-----------------------------------------------------------------------------
+Copyright (c) 2022 Leo Tully - All Rights Reserved
 
-Copyright (c) 2022 Leo Tully
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-------------------------------------------------------------------------------*/
+You may use, copy, modify, merge, publish, etc. this software under the terms
+of the MIT License.
+-----------------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,7 +99,6 @@ struct Iconf iconf_load(const char *filename)
 	FILE *fp;
 	char *s;
 	char buffer[BUF_LEN];
-	char **newptr;
 	int count = 0;
 	
 	ini.errval = 0;
@@ -130,20 +112,25 @@ struct Iconf iconf_load(const char *filename)
 		return ini;
 	}	
 	
-	ini.strings = (char**)malloc(1 * sizeof(char*));
-
-	if (ini.strings == NULL)
-	{
-		fclose(fp);
-		ini.errval = 2;
-		return ini;
-	}
 
 	while (fgets(buffer, BUF_LEN, fp) != NULL)
 	{
 		
-		if (count > 0)
+		if (count == 0)
 		{
+			ini.strings = (char**)malloc(1 * sizeof(char*));
+
+			if (ini.strings == NULL)
+			{
+				fclose(fp);
+				ini.errval = 2;
+				return ini;
+			}
+		}
+		else
+		{
+			char **newptr;
+			
 			newptr = (char**)realloc(ini.strings, (count + 1) * sizeof(char*));
 
 			if (newptr == NULL)
@@ -151,7 +138,7 @@ struct Iconf iconf_load(const char *filename)
 				fclose(fp);
 				iconf_free(ini);
 				ini.errval = 2;
-				return ini;		
+				return ini;	
 			}
 			
 			ini.strings = newptr;
@@ -230,25 +217,41 @@ char *iconf_get_key(struct Iconf iconf, char *section, char *keyname)
 	if (section == NULL)
 		keyonly = 1;
 	 
+	/*
 	if ((s = (char*)malloc(1)) == NULL)
 	{
 		iconf.errval = 2;
 		return NULL;
 	}
+	*/
 	
 	for (i = 0; i < iconf.count; i++)
 	{
-		char *newptr;
-
-		newptr = (char*)realloc(s, strlen(iconf.strings[i]) + 1);
-
-		if (newptr == NULL)
+		if (i == 0)
 		{
-			free(s);
-			return NULL;
-		}
+			s = (char*)malloc(strlen(iconf.strings[i]) + 1);
 
-		s = newptr;
+			if (s == NULL)
+			{
+				iconf.errval = 2;
+				return NULL;
+			}
+		}
+		else
+		{
+			char *newptr;
+
+			newptr = (char*)realloc(s, strlen(iconf.strings[i]) + 1);
+
+			if (newptr == NULL)
+			{
+				free(s);
+				iconf.errval = 2;
+				return NULL;
+			}
+
+			s = newptr;
+		}
 		
 		strcpy(s, trimws(iconf.strings[i], LEFT));
 
@@ -279,6 +282,8 @@ char *iconf_get_key(struct Iconf iconf, char *section, char *keyname)
 	}
 
 	free(s);
+	
+	iconf.errval = 1;
 	return NULL; /* key not found */
 }
 
